@@ -29,8 +29,7 @@ jobs:
           panel convert exomoon_dashboard.py \
             --to pyodide-worker \
             --out docs \
-            --title "Exomoon Transit Simulator" \
-            -- υπάρχει # Add a unique string to ensure the command is different from previous attempts
+            --title "Exomoon Transit Simulator"
             # Note: HoloViews Bokeh extension is already initialized in the script.
             # Panel's pyodide-worker should handle wasm loading.
 
