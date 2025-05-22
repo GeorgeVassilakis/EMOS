@@ -1,44 +1,23 @@
-name: Deploy Exomoon Simulator to GitHub Pages
+name: Deploy to GitHub Pages
 
 on:
   push:
     branches:
-      - main  # Or master, depending on your default branch
+      - main
+
+permissions:
+  contents: write
 
 jobs:
-  build-and-deploy:
+  deploy:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write # Allow write access to repository for gh-pages branch
     steps:
-      - name: Check out repository
+      - name: Checkout repository
         uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.10' # Panel and Pyodide work well with this version
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install panel numpy holoviews bokeh
-
-      - name: Build Panel application
-        run: |
-          panel convert exomoon_dashboard.py \
-            --to pyodide-worker \
-            --out docs \
-            --title "Exomoon Transit Simulator"
-            # Note: HoloViews Bokeh extension is already initialized in the script.
-            # Panel's pyodide-worker should handle wasm loading.
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./docs
-          # publish_branch: gh-pages # This is the default, so not strictly necessary
-          # user_name: 'github-actions[bot]' # Default is fine
-          # user_email: 'github-actions[bot]@users.noreply.github.com' # Default is fine
-          # commit_message: 'Deploy to GitHub Pages' # Default is fine
+          publish_dir: ./
+          exclude_assets: '.github,README.md,.gitignore'
