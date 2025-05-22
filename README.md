@@ -2,6 +2,15 @@
 
 An interactive dashboard for simulating and visualizing exoplanet-exomoon transit light curves. This tool allows users to explore how various parameters affect the appearance of transit light curves when an exoplanet with an exomoon passes in front of its host star.
 
+## Live Web Application
+
+This simulator is deployed as an interactive web application using GitHub Pages. You can access it here:
+
+**[Access the Exomoon Transit Simulator](https://YOUR_USERNAME.github.io/YOUR_REPOSITORYNAME/)**
+
+---
+*The web application is automatically built and deployed using GitHub Actions.*
+
 ## Features
 
 - Interactive simulation of exoplanet and exomoon transits
@@ -12,11 +21,26 @@ An interactive dashboard for simulating and visualizing exoplanet-exomoon transi
 
 ## Usage
 
-To run the simulator dashboard:
+The primary way to use the Exomoon Transit Simulator is via the live web application linked above.
 
-```bash
-python -m exomoon_simulator.main
-```
+### Local Development or Offline Use
+
+If you want to run the simulator locally (e.g., for development):
+
+1.  Clone the repository:
+    ```bash
+    git clone https://github.com/YOUR_USERNAME/YOUR_REPOSITORYNAME.git
+    cd YOUR_REPOSITORYNAME
+    ```
+2.  Install dependencies (preferably in a virtual environment):
+    ```bash
+    pip install numpy panel holoviews bokeh
+    ```
+3.  Run the dashboard:
+    ```bash
+    python exomoon_dashboard.py 
+    ```
+    (Note: The original entry point `python -m exomoon_simulator.main` should also work if Panel is installed and serving `exomoon_dashboard.py` correctly, but direct execution of the dashboard script is also common for Panel apps.)
 
 The dashboard will open in your default web browser. Use the sliders and controls to adjust the simulation parameters:
 
