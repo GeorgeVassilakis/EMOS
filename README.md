@@ -6,7 +6,7 @@ An interactive dashboard for simulating and visualizing exoplanet-exomoon transi
 
 This simulator is deployed as an interactive web application using GitHub Pages. You can access it here:
 
-**[Access the Exomoon Transit Simulator](https://YOUR_USERNAME.github.io/YOUR_REPOSITORYNAME/)**
+**[Access the Exomoon Transit Simulator](https://georgevassilakis.github.io/EMOS/)**
 
 ---
 *The web application is automatically built and deployed using GitHub Actions.*
