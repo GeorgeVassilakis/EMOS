@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exomoon Transit Simulator</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <!-- Header -->
+    <header class="app-header">
+        <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+        <h1>Exomoon Transit Simulator</h1>
+        <div class="header-spacer"></div>
+    </header>
+
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <h2>Simulation Controls</h2>
+            
+            <!-- Parameter Tabs -->
+            <div class="tab-container">
+                <div class="tab-buttons">
+                    <button class="tab-button active" onclick="switchTab('star')">⭐ Star</button>
+                    <button class="tab-button" onclick="switchTab('planet')">🪐 Planet</button>
+                    <button class="tab-button" onclick="switchTab('moon')">🌕 Moon</button>
+                </div>
+                
+                <!-- Star Tab -->
+                <div id="star-tab" class="tab-content active">
+                    <div class="control-group">
+                        <label for="star-radius">Star Radius: <span id="star-radius-value">1</span></label>
+                        <input type="range" id="star-radius" min="0.5" max="2.0" step="0.1" value="1.0">
+                        <p class="help-text">Radius of the star (arbitrary units)</p>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label for="star-intensity">Star Intensity: <span id="star-intensity-value">1</span></label>
+                        <input type="range" id="star-intensity" min="0.5" max="2.0" step="0.1" value="1.0">
+                        <p class="help-text">Base intensity of the star (arbitrary units)</p>
+                    </div>
+                </div>
+                
+                <!-- Planet Tab -->
+                <div id="planet-tab" class="tab-content">
+                    <div class="control-group">
+                        <label for="planet-radius">Planet Radius: <span id="planet-radius-value">0.10</span></label>
+                        <input type="range" id="planet-radius" min="0.01" max="0.3" step="0.01" value="0.1">
+                        <p class="help-text">Radius of the planet relative to star radius</p>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label for="planet-distance">Planet Distance: <span id="planet-distance-value">0.50</span></label>
+                        <input type="range" id="planet-distance" min="0.0" max="2.0" step="0.1" value="0.5">
+                        <p class="help-text">Distance of planet from star center in transit plane</p>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label for="transit-duration">Transit Duration: <span id="transit-duration-value">4</span></label>
+                        <input type="range" id="transit-duration" min="1.0" max="10.0" step="0.5" value="4.0">
+                        <p class="help-text">Duration of the transit in hours</p>
+                    </div>
+                </div>
+                
+                <!-- Moon Tab -->
+                <div id="moon-tab" class="tab-content">
+                    <div class="control-group">
+                        <label for="moon-radius">Moon Radius: <span id="moon-radius-value">0.03</span></label>
+                        <input type="range" id="moon-radius" min="0.005" max="0.1" step="0.005" value="0.03">
+                        <p class="help-text">Radius of the moon relative to star radius</p>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label for="moon-distance">Moon Distance: <span id="moon-distance-value">0.20</span></label>
+                        <input type="range" id="moon-distance" min="0.05" max="0.5" step="0.05" value="0.2">
+                        <p class="help-text">Distance of moon from planet center</p>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label for="moon-orbital-period">Moon Orbital Period: <span id="moon-orbital-period-value">24</span></label>
+                        <input type="range" id="moon-orbital-period" min="1.0" max="48.0" step="1.0" value="24.0">
+                        <p class="help-text">Orbital period of moon around planet in hours</p>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label for="moon-initial-phase">Moon Initial Phase: <span id="moon-initial-phase-value">0.00</span></label>
+                        <input type="range" id="moon-initial-phase" min="0.0" max="1.0" step="0.05" value="0.0">
+                        <p class="help-text">Initial orbital phase of moon (0-1)</p>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label for="moon-orbital-inclination">Moon Orbital Inclination: <span id="moon-orbital-inclination-value">0</span>°</label>
+                        <input type="range" id="moon-orbital-inclination" min="-90.0" max="90.0" step="5.0" value="0.0">
+                        <p class="help-text">Inclination of moon orbit relative to transit plane (degrees)</p>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="include-moon" checked>
+                            Include Moon
+                        </label>
+                        <p class="help-text">Whether to include the moon in the simulation</p>
+                    </div>
+                </div>
+            </div>
+            
+            <button class="reset-button" onclick="resetParameters()">Reset Parameters</button>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="main-tabs">
+                <div class="main-tab-buttons">
+                    <button class="main-tab-button active" onclick="switchMainTab('lightcurve')">📈 Light Curve</button>
+                    <button class="main-tab-button" onclick="switchMainTab('orbital')">🔭 Orbital View</button>
+                </div>
+                
+                <!-- Light Curve Tab -->
+                <div id="lightcurve-tab" class="main-tab-content active">
+                    <h3>Transit Light Curve</h3>
+                    <div class="chart-container">
+                        <canvas id="light-curve-chart"></canvas>
+                    </div>
+                </div>
+                
+                <!-- Orbital View Tab -->
+                <div id="orbital-tab" class="main-tab-content">
+                    <h3>System Configuration</h3>
+                    <div id="orbital-diagram" class="orbital-diagram"></div>
+                    <div class="control-group">
+                        <label for="time-slider">Time: <span id="time-value">0</span></label>
+                        <input type="range" id="time-slider" min="-2.0" max="2.0" step="0.1" value="0.0">
+                        <p class="help-text">Current time in the simulation</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Load JavaScript files -->
+    <script src="js/config.js"></script>
+    <script src="js/physics.js"></script>
+    <script src="js/lightcurve.js"></script>
+    <script src="js/orbital.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
