@@ -35,8 +35,8 @@ function createOrbitalDiagram(params) {
     const moonRelY = moonDistance * Math.sin(moonAngle);
     
     const moonX = planetX + moonRelX;
-    const moonY = planetY + moonRelY * Math.cos(inclinationRad);
-    const moonZ = moonRelY * Math.sin(inclinationRad);
+    const moonY = planetY + moonRelY * Math.sin(inclinationRad);
+    const moonZ = moonRelY * Math.cos(inclinationRad);
     
     // Generate moon orbital ellipse points
     const orbitPoints = [];
@@ -46,7 +46,7 @@ function createOrbitalDiagram(params) {
         const orbitRelX = moonDistance * Math.cos(angle);
         const orbitRelY = moonDistance * Math.sin(angle);
         const orbitX = planetX + orbitRelX;
-        const orbitY = planetY + orbitRelY * Math.cos(inclinationRad);
+        const orbitY = planetY + orbitRelY * Math.sin(inclinationRad);
         orbitPoints.push({
             x: orbitX * scale + cx,
             y: orbitY * scale + cy
@@ -97,7 +97,7 @@ function createOrbitalDiagram(params) {
     // Add moon if included
     if (includeMoon) {
         // Adjust moon size based on z-position (perspective)
-        const zScale = 1.0 - 0.2 * (moonZ / moonDistance);
+        const zScale = moonDistance !== 0 ? 1.0 - 0.2 * (moonZ / moonDistance) : 1.0;
         const moonApparentRadius = moonRadius * scale * zScale;
         
         svg += `
