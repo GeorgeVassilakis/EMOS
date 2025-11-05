@@ -8,17 +8,20 @@ const LIMB_DARKENING_COEFF = 0.6;
  * Calculate limb darkening intensity at a given position on the stellar disk
  * Uses linear limb darkening law: I(μ) = I0 * (1 - u * (1 - μ))
  * where μ = cos(θ) and θ is angle from disk center
+ *
+ * For positions outside the star (during ingress/egress), clamps to limb intensity
+ * to approximate the intensity where the overlap occurs.
  */
 function limbDarkeningIntensity(x, y, starRadius) {
     const distance = Math.sqrt(x * x + y * y);
 
-    // If outside the star, return 0
-    if (distance >= starRadius) {
-        return 0;
-    }
+    // Clamp distance to stellar radius to handle ingress/egress correctly
+    // When the transiting body's center is outside the star but there's still
+    // overlap, we use the limb intensity as a reasonable approximation
+    const clampedDistance = Math.min(distance, starRadius * 0.9999);
 
     // Calculate μ = cos(θ) = sqrt(1 - (r/R)²)
-    const r_over_R = distance / starRadius;
+    const r_over_R = clampedDistance / starRadius;
     const mu = Math.sqrt(1 - r_over_R * r_over_R);
 
     // Linear limb darkening law: I(μ) = 1 - u(1 - μ)
