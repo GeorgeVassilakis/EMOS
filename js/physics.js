@@ -1,5 +1,33 @@
 // Physics calculations for exomoon transit simulation
 
+// Limb darkening coefficient for linear limb darkening law
+// u = 0.6 is typical for Sun-like stars
+const LIMB_DARKENING_COEFF = 0.6;
+
+/**
+ * Calculate limb darkening intensity at a given position on the stellar disk
+ * Uses linear limb darkening law: I(μ) = I0 * (1 - u * (1 - μ))
+ * where μ = cos(θ) and θ is angle from disk center
+ *
+ * For positions outside the star (during ingress/egress), clamps to limb intensity
+ * to approximate the intensity where the overlap occurs.
+ */
+function limbDarkeningIntensity(x, y, starRadius) {
+    const distance = Math.sqrt(x * x + y * y);
+
+    // Clamp distance to stellar radius to handle ingress/egress correctly
+    // When the transiting body's center is outside the star but there's still
+    // overlap, we use the limb intensity as a reasonable approximation
+    const clampedDistance = Math.min(distance, starRadius * 0.9999);
+
+    // Calculate μ = cos(θ) = sqrt(1 - (r/R)²)
+    const r_over_R = clampedDistance / starRadius;
+    const mu = Math.sqrt(1 - r_over_R * r_over_R);
+
+    // Linear limb darkening law: I(μ) = 1 - u(1 - μ)
+    return 1 - LIMB_DARKENING_COEFF * (1 - mu);
+}
+
 function transitAreaVectorized(x, y, radius, starRadius) {
     // Calculate overlap area between star and transiting body
     const area = new Array(x.length);
@@ -151,12 +179,32 @@ function simulateLightCurve(params) {
         }
     }
     
-    // Apply transit effects
+    // Calculate total stellar flux with limb darkening
+    // For linear limb darkening I(μ) = 1 - u(1-μ), total flux = πR²(1 - u/3)
+    const totalStellarFlux = Math.PI * starRadius * starRadius *
+                            (1 - LIMB_DARKENING_COEFF / 3) * starIntensity;
+
+    // Apply transit effects with limb darkening
     for (let i = 0; i < transitIndices.length; i++) {
         const idx = transitIndices[i];
-        const totalOverlap = starPlanetOverlap[i] + starMoonOverlap[i] - planetMoonOverlap[i];
-        flux[idx] -= (totalOverlap / (Math.PI * starRadius * starRadius)) * starIntensity;
+
+        // Calculate limb-darkened flux blocked by planet
+        const planetLimbDarkening = limbDarkeningIntensity(planetX[i], planetY[i], starRadius);
+        const planetFluxBlocked = starPlanetOverlap[i] * planetLimbDarkening * starIntensity;
+
+        // Calculate limb-darkened flux blocked by moon
+        const moonLimbDarkening = limbDarkeningIntensity(moonX[i], moonY[i], starRadius);
+        const moonFluxBlocked = starMoonOverlap[i] * moonLimbDarkening * starIntensity;
+
+        // Subtract double-counted overlap (use moon's limb darkening since it's in front)
+        const overlapFluxBlocked = planetMoonOverlap[i] * moonLimbDarkening * starIntensity;
+
+        // Total flux blocked
+        const totalFluxBlocked = planetFluxBlocked + moonFluxBlocked - overlapFluxBlocked;
+
+        // Update flux (normalize by total stellar flux)
+        flux[idx] -= (totalFluxBlocked / totalStellarFlux) * starIntensity;
     }
-    
+
     return { time, flux };
 }
