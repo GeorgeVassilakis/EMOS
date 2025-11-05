@@ -5,8 +5,10 @@ function createOrbitalDiagram(params) {
         starRadius,
         planetRadius,
         planetDistance,
+        transitDuration,
         moonRadius,
         moonDistance,
+        moonOrbitalPeriod,
         moonInitialPhase,
         moonOrbitalInclination,
         includeMoon,
@@ -28,15 +30,17 @@ function createOrbitalDiagram(params) {
     
     // Convert inclination to radians
     const inclinationRad = moonOrbitalInclination * Math.PI / 180;
-    
-    // Calculate moon position
-    const moonAngle = 2 * Math.PI * moonInitialPhase;
+
+    // Calculate moon position with time evolution
+    const currentTime = (timeFraction - 0.5) * transitDuration;
+    const currentPhase = (currentTime / moonOrbitalPeriod) + moonInitialPhase;
+    const moonAngle = 2 * Math.PI * currentPhase;
     const moonRelX = moonDistance * Math.cos(moonAngle);
     const moonRelY = moonDistance * Math.sin(moonAngle);
     
     const moonX = planetX + moonRelX;
-    const moonY = planetY + moonRelY * Math.sin(inclinationRad);
-    const moonZ = moonRelY * Math.cos(inclinationRad);
+    const moonY = planetY + moonRelY * Math.cos(inclinationRad);
+    const moonZ = moonRelY * Math.sin(inclinationRad);
     
     // Generate moon orbital ellipse points
     const orbitPoints = [];
@@ -46,7 +50,7 @@ function createOrbitalDiagram(params) {
         const orbitRelX = moonDistance * Math.cos(angle);
         const orbitRelY = moonDistance * Math.sin(angle);
         const orbitX = planetX + orbitRelX;
-        const orbitY = planetY + orbitRelY * Math.sin(inclinationRad);
+        const orbitY = planetY + orbitRelY * Math.cos(inclinationRad);
         orbitPoints.push({
             x: orbitX * scale + cx,
             y: orbitY * scale + cy
@@ -96,9 +100,8 @@ function createOrbitalDiagram(params) {
     
     // Add moon if included
     if (includeMoon) {
-        // Adjust moon size based on z-position (perspective)
-        const zScale = moonDistance !== 0 ? 1.0 - 0.2 * (moonZ / moonDistance) : 1.0;
-        const moonApparentRadius = moonRadius * scale * zScale;
+        // No perspective scaling - astronomical objects are too distant for perspective effects
+        const moonApparentRadius = moonRadius * scale;
         
         svg += `
         <!-- Moon -->
